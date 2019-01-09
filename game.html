@@ -7,14 +7,9 @@
 </head>
 
 <body>
-
-    <p><input type="text" id="message" /><input type="button" value="Envoyer" id="send" /></p>
-    <p id="chat"></p>
-
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io.connect('192.168.1.105:8080');
+        var socket = io.connect('http://2f6dada7.ngrok.io');
 
         var nickName = prompt('What is your nickname ?');
 
