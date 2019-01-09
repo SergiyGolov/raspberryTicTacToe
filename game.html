@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tic tac toe</title>
+</head>
+
+<body>
+
+    <p><input type="text" id="message" /><input type="button" value="Envoyer" id="send" /></p>
+    <p id="chat"></p>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io.connect('192.168.1.105:8080');
+
+        var nickName = prompt('What is your nickname ?');
+
+        socket.emit('new_user', nickName);
+    </script>
+</body>
+
+</html>
