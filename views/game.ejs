@@ -20,23 +20,10 @@
 </head>
 
 <body>
-    <table>
-        <tr>
-            <th class="squared"></th>
-            <th class="squared"></th>
-            <th class="squared"></th>
-        </tr>
-        <tr>
-            <td class="squared"></td>
-            <td class="squared"></td>
-            <td class="squared"></td>
-        </tr>
-        <tr>
-            <td class="squared"></td>
-            <td class="squared"></td>
-            <td class="squared"></td>
-        </tr>
+    <table id="board">
+
     </table>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io.connect('<%= serverAdress %>');
@@ -55,6 +42,17 @@
         squares.forEach(el => {
             el.style.height = `${width}px`;
         });
+
+        for (let i = 0; i < 3; i++) {
+            let tr = document.createElement('tr');
+            for (let j = 0; j < 3; j++) {
+                let td = document.createElement('td');
+                td.id = `${i},${j}`;
+                td.className = 'squared';
+                tr.appendChild(td);
+            }
+            document.getElementById('board').appendChild(tr);
+        }
     </script>
 </body>
 
