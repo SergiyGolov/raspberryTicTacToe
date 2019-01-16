@@ -9,7 +9,7 @@
 <body>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io.connect('http://2f6dada7.ngrok.io');
+        var socket = io.connect('<%= compteur %>');
 
         var nickName = prompt('What is your nickname ?');
 
