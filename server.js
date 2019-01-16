@@ -22,15 +22,33 @@ app.get('/', function (req, res) {
 });
 
 
+
+var playerCounter=0;
+
+
+
 io.sockets.on('connection', socket => {
     socket.on('new_user', nickName => {
         console.log(nickName + " connected to server!");
         socket.nickname = nickName;
+        playerCounter++;
+        if(playerCounter==1)
+        {
+            socket.emit("setColor","red");
+        }else if(playerCounter==2)
+        {
+            socket.emit("setColor","green");
+        }else{
+            socket.emit("setColor","white");
+            socket.emit("message","sorry, there are already 2 other players");
+        }
+        console.log(playerCounter);
     });
 
     socket.on('disconnect', () => {
         socket.broadcast.emit('message',`${socket.nickname} disconnected`);
         console.log(`${socket.nickname} disconnected`);
+        playerCounter--;
     });
 
 });

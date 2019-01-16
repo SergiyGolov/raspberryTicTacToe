@@ -10,11 +10,15 @@
         tbody,
         tr,
         body {
-            width: 100%;
+            width: 90%;
         }
 
         .squared {
             width: 33%;
+        }
+
+        td {
+            border: 1px solid black;
         }
     </style>
 </head>
@@ -26,32 +30,51 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io.connect('<%= serverAdress %>');
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", init);
+        } else {
+            init();
+        }
 
-        var nickName = prompt('What is your nickname ?');
+        function init() {
+            var color = "white";
 
-        socket.emit('new_user', nickName);
+            var socket = io.connect('<%= serverAdress %>');
 
-        socket.on('message', message => {
-            alert(`Le serveur a un message pour vous : ${message}`);
-        });
+            var nickName = prompt('What is your nickname ?');
 
-        let squares = document.querySelectorAll('.squared');
-        let width = squares[0].offsetWidth;;
+            socket.emit('new_user', nickName);
 
-        squares.forEach(el => {
-            el.style.height = `${width}px`;
-        });
+            socket.on('message', message => {
+                alert(`Le serveur a un message pour vous : ${message}`);
+            });
 
-        for (let i = 0; i < 3; i++) {
-            let tr = document.createElement('tr');
-            for (let j = 0; j < 3; j++) {
-                let td = document.createElement('td');
-                td.id = `${i},${j}`;
-                td.className = 'squared';
-                tr.appendChild(td);
-            }
-            document.getElementById('board').appendChild(tr);
+            socket.on('setColor', message => {
+                color = message;
+                if (color != "white") {
+
+                    for (let i = 0; i < 3; i++) {
+                        let tr = document.createElement('tr');
+                        for (let j = 0; j < 3; j++) {
+                            let td = document.createElement('td');
+                            td.id = `${i},${j}`;
+                            td.className = 'squared';
+                            td.addEventListener('click', (event) => {
+                                event.target.style.backgroundColor = color;
+                            });
+                            tr.appendChild(td);
+                        }
+                        document.getElementById('board').appendChild(tr);
+                    }
+
+                    let squares = document.querySelectorAll('.squared');
+                    let width = squares[0].clientWidth;
+
+                    squares.forEach(el => {
+                        el.style.height = `${width}px`;
+                    });
+                }
+            });
         }
     </script>
 </body>
