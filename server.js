@@ -4,13 +4,16 @@ const { execFileSync } = require('child_process');
 
 var ngrokAdress=execFileSync("./getNgrokAdress.sh").toString();
 
+var express = require('express');
 
-var server = http.createServer((req, res) => {
-    res.render('game.ejs',{serverAdress:ngrokAdress});
-});
+var app = express();
 
 var io = require('socket.io').listen(server);
 
+
+app.get('/', function(req, res) {
+    res.render('game.ejs',{serverAdress:ngrokAdress});
+});
 
 
 io.sockets.on('connection', socket => {
