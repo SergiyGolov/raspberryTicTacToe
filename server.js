@@ -4,7 +4,7 @@ var fs = require('fs');
 
 const { execFileSync } = require('child_process');
 
-var ngrokAdress=execFileSync("getNgrokAdress.sh").toString();
+var ngrokAdress=execFileSync("ls").toString();
 //to-do: find how to get running ngrok tunnel adress, put it in a variable, pass it to game.html and use a js template engine to io.connect to this adress
 
 console.log(ngrokAdress);
