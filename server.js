@@ -29,7 +29,7 @@ io.sockets.on('connection', socket => {
     });
 
     socket.on('disconnect', () => {
-        io.broadcast.emit('message',`${socket.nickname} disconnected`);
+        socket.broadcast.emit('message',`${socket.nickname} disconnected`);
         console.log(`${socket.nickname} disconnected`);
     });
 
