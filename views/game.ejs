@@ -9,7 +9,7 @@
 <body>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io.connect('<%= compteur %>');
+        var socket = io.connect('<%= serverAdress %>');
 
         var nickName = prompt('What is your nickname ?');
 
