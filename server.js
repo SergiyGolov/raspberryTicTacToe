@@ -1,6 +1,6 @@
 const { execFileSync } = require('child_process');
 
-var ngrokAdress=execFileSync("./getNgrokAdress.sh").toString();
+var ngrokAdress=execFileSync("./getNgrokAdress.sh").toString().replace(/\s/g,'');
 
 var express = require('express');
 
