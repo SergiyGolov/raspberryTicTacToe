@@ -1,21 +1,12 @@
 var http = require('http');
 
-var fs = require('fs');
-
 const { execFileSync } = require('child_process');
 
 var ngrokAdress=execFileSync("./getNgrokAdress.sh").toString();
-//to-do: find how to get running ngrok tunnel adress, put it in a variable, pass it to game.html and use a js template engine to io.connect to this adress
 
-console.log(ngrokAdress);
 
 var server = http.createServer((req, res) => {
-    fs.readFile('./game.html', 'utf-8', function (error, content) {
-        res.writeHead(200, {
-            "Content-Type": "text/html"
-        });
-        res.end(content);
-    });
+    res.render('game.ejs',{serverAdress:ngrokAdress});
 });
 
 var io = require('socket.io').listen(server);
