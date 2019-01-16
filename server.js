@@ -6,7 +6,11 @@ var express = require('express');
 
 var app = express();
 
-var io = require('socket.io').listen(app);
+var http = require('http');
+
+var server = http.createServer(app);
+
+var io = require('socket.io').listen(server);
 
 
 app.get('/', function(req, res) {
@@ -22,4 +26,4 @@ io.sockets.on('connection', socket => {
 
 });
 
-app.listen(8080);
+server.listen(8080);
