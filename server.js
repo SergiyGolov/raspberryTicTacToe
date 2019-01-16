@@ -1,5 +1,3 @@
-var http = require('http');
-
 const { execFileSync } = require('child_process');
 
 var ngrokAdress=execFileSync("./getNgrokAdress.sh").toString();
@@ -24,4 +22,4 @@ io.sockets.on('connection', socket => {
 
 });
 
-server.listen(8080);
+app.listen(8080);
