@@ -4,9 +4,31 @@
 <head>
     <meta charset="utf-8" />
     <title>Tic tac toe</title>
+    <style>
+        .squared {
+            width: 33%;
+        }
+    </style>
 </head>
 
 <body>
+    <table>
+        <tr>
+            <th class="squared"></th>
+            <th class="squared"></th>
+            <th class="squared"></th>
+        </tr>
+        <tr>
+            <td class="squared"></td>
+            <td class="squared"></td>
+            <td class="squared"></td>
+        </tr>
+        <tr>
+            <td class="squared"></td>
+            <td class="squared"></td>
+            <td class="squared"></td>
+        </tr>
+    </table>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io.connect('<%= serverAdress %>');
@@ -17,6 +39,13 @@
 
         socket.on('message', message => {
             alert(`Le serveur a un message pour vous : ${message}`);
+        });
+
+        let squares = document.querySelectorAll('.squared');
+        let width = squares[0].offsetWidth;;
+
+        squares.forEach(el => {
+            el.style.height = `${width}px`;
         });
     </script>
 </body>
