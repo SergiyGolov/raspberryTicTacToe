@@ -2,6 +2,8 @@
 <html>
 
 <head>
+   <link href="toastr.css" rel="stylesheet" />  <!--  https://stackoverflow.com/questions/48248832/stylesheet-not-loaded-because-of-mime-type -->
+    <script src="toastr.js"></script>
     <meta charset="utf-8" />
     <title>Tic tac toe</title>
     <style>
@@ -41,18 +43,28 @@
 
             var socket = io.connect('<%= serverAdress %>');
 
-            var nickName = prompt('What is your nickname ?');
+            var init = false;
 
-            socket.emit('new_user', nickName);
+            var board = new Array(3);
+
+            for (var i = 0; i < board.length; i++) {
+                board[i] = new Array(3);
+            }
+
 
             socket.on('message', message => {
-                alert(`Le serveur a un message pour vous : ${message}`);
+                toastr.info(message);
+            });
+
+            socket.on('playOk', move => {
+                console.log("playOk");
+                board[move.x][move.y].style.backgroundColor = move.color;
             });
 
             socket.on('setColor', message => {
                 color = message;
-                if (color != "white") {
-
+                if (color != "white" && !init) {
+                    init = true;
                     for (let i = 0; i < 3; i++) {
                         let tr = document.createElement('tr');
                         for (let j = 0; j < 3; j++) {
@@ -60,8 +72,14 @@
                             td.id = `${i},${j}`;
                             td.className = 'squared';
                             td.addEventListener('click', (event) => {
-                                event.target.style.backgroundColor = color;
+                                var move = {
+                                    color: color,
+                                    x: i,
+                                    y: j
+                                };
+                                socket.emit('play', move);
                             });
+                            board[i][j] = td;
                             tr.appendChild(td);
                         }
                         document.getElementById('board').appendChild(tr);
