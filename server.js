@@ -65,9 +65,25 @@ io.sockets.on('connection', socket => {
             players.forEach(player => {
                 player.emit('playOk', move);
             });
+            execFileSync("./ledMatrix.py" + " " + parseBoardToLedMatrix());
         }
     });
 
 });
 
 server.listen(8080);
+
+function parseBoardToLedMatrix() {
+    let matrixString = "";
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[i].length; j++) {
+            if (board[i][j] == "red")
+                matrixString += "r";
+            else if (board[i][j] == "green")
+                matrixString += "g";
+            else
+                matrixString += "0";
+        }
+    }
+    return matrixString;
+}
