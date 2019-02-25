@@ -2,25 +2,16 @@
 <html>
 
 <head>
-   <link href="toastr.css" rel="stylesheet" />  <!--  https://stackoverflow.com/questions/48248832/stylesheet-not-loaded-because-of-mime-type -->
-    <script src="toastr.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+    <!--  https://stackoverflow.com/questions/48248832/stylesheet-not-loaded-because-of-mime-type -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <meta charset="utf-8" />
     <title>Tic tac toe</title>
     <style>
-        html,
-        table,
-        tbody,
-        tr,
-        body {
-            width: 90%;
-        }
-
-        .squared {
-            width: 33%;
-        }
-
         td {
-            border: 1px solid black;
+            border: 1px solid rgb(0, 0, 0);
         }
     </style>
 </head>
@@ -39,6 +30,7 @@
         }
 
         function init() {
+
             var color = "white";
 
             var socket = io.connect('<%= serverAdress %>');
@@ -51,20 +43,61 @@
                 board[i] = new Array(3);
             }
 
+            toastr.options = {
+                "positionClass": "toast-top-full-width",
+                "preventDuplicates": true,
+                "timeOut": "1500",
+            }
 
             socket.on('message', message => {
                 toastr.info(message);
             });
 
             socket.on('playOk', move => {
-                console.log("playOk");
                 board[move.x][move.y].style.backgroundColor = move.color;
+                if ((move.color == "red" && color == "green") || (move.color == "green" && color == "red")) {
+                    toastr.info("It's your turn !");
+                }
+            });
+
+            socket.on('board', board => {
+                let x = 0;
+                let y = 0;
+                board.split().forEach(el => {
+                    if (x == 3) {
+                        y++;
+                        x = 0;
+                    }
+                    if (el == "r") {
+                        board[x][y].color = "red";
+                    } else if (el == "g") {
+                        board[x][y].color = "green";
+                    } else {
+                        board[x][y].color = "white";
+                    }
+                    x++;
+                });
             });
 
             socket.on('setColor', message => {
                 color = message;
+                if (color == "red") {
+                    toastr.info("It's your turn !");
+                }
+
                 if (color != "white" && !init) {
                     init = true;
+                    let width = window.innerWidth ||
+                        document.documentElement.clientWidth ||
+                        document.body.clientWidth;
+
+                    let height = window.innerHeight ||
+                        document.documentElement.clientHeight ||
+                        document.body.clientHeight;
+
+                    height *= 0.9;
+                    width *= 0.9;
+
                     for (let i = 0; i < 3; i++) {
                         let tr = document.createElement('tr');
                         for (let j = 0; j < 3; j++) {
@@ -79,6 +112,13 @@
                                 };
                                 socket.emit('play', move);
                             });
+                            if (width < height) {
+                                td.style.height = `${width/3}px`;
+                                td.style.width = `${width/3}px`;
+                            } else {
+                                td.style.height = `${height/3}px`;
+                                td.style.width = `${height/3}px`;
+                            }
                             board[i][j] = td;
                             tr.appendChild(td);
                         }
@@ -86,11 +126,9 @@
                     }
 
                     let squares = document.querySelectorAll('.squared');
-                    let width = squares[0].clientWidth;
 
-                    squares.forEach(el => {
-                        el.style.height = `${width}px`;
-                    });
+
+
                 }
             });
         }
