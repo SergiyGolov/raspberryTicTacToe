@@ -5,13 +5,19 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
-    <!--  https://stackoverflow.com/questions/48248832/stylesheet-not-loaded-because-of-mime-type -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <meta charset="utf-8" />
     <title>Tic tac toe</title>
     <style>
         td {
-            border: 1px solid rgb(0, 0, 0);
+            border: 6px solid rgb(255, 255, 0);
+            z-index: 2;
+            background-color: white;
+        }
+
+        table {
+            background-color: rgb(255, 255, 0);
+            z-index: 1;
         }
     </style>
 </head>
@@ -60,22 +66,23 @@
                 }
             });
 
-            socket.on('board', board => {
+            socket.on('board', serializedBoard => {
                 let x = 0;
                 let y = 0;
-                board.split().forEach(el => {
-                    if (x == 3) {
-                        y++;
-                        x = 0;
+                serializedBoard.split("").forEach(el => {
+                    console.log(el)
+                    if (y == 3) {
+                        x++;
+                        y = 0;
                     }
                     if (el == "r") {
-                        board[x][y].color = "red";
+                        board[x][y].style.backgroundColor = "red";
                     } else if (el == "g") {
-                        board[x][y].color = "green";
+                        board[x][y].style.backgroundColor = "green";
                     } else {
-                        board[x][y].color = "white";
+                        board[x][y].style.backgroundColor = "white";
                     }
-                    x++;
+                    y++;
                 });
             });
 

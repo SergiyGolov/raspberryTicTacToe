@@ -2,17 +2,43 @@ const {
     execFileSync
 } = require('child_process');
 
+require('dotenv').config();
+
 var ngrokAdress = execFileSync("./getNgrokAdress.sh").toString().replace(/\s/g, '');
 
-var express = require('express');
+var app = require('express')(),
+    server = require("http").createServer(app),
+    io = require("socket.io")(server),
+    session = require("express-session")({
+        secret: process.env.SESSION_SECRET,
+        resave: true,
+        saveUninitialized: true
+    }),
+    sharedsession = require("express-socket.io-session");
 
-var app = express();
+const Discord = require('discord.js');
+const client = new Discord.Client();
+const token = process.env.DISCORD_BOT_SECRET;
 
-var http = require('http');
+var channel;
 
-var server = http.createServer(app);
 
-var io = require('socket.io').listen(server);
+client.on('ready', () => {
+    console.log("Bot ready");
+    channel = client.channels.find(x => x.name ==='général');
+    channel.send(`Adress of the server: ${ngrokAdress}`);
+});
+
+client.on('message', msg => {
+    if (msg.author.id != client.user.id ) {
+        if(msg == "/link")
+            msg.channel.send(ngrokAdress);
+    }
+});
+
+client.login(token);
+
+app.use(session);
 
 app.get('/', function (req, res) {
     res.render('game.ejs', {
@@ -37,30 +63,55 @@ for (var i = 0; i < board.length; i++) {
     }
 }
 
-io.sockets.on('connection', socket => {
+io.use(sharedsession(session));
 
-    if (turnCount > 0 && players.length == 1) {
-        socket.emit("board", parseBoardToLedMatrix());
-    }
+io.on('connection', socket => {
 
     if (players.length == 0) {
         socket.emit("setColor", "red");
         socket.color = "red";
-        players.push(socket);
-        socket.emit("wait");
-    } else if (players.length == 1) {
-        if (players[0].color == "red") {
-            socket.emit("setColor", "green");
-            socket.color = "green";
-        } else {
-            socket.emit("setColor", "red");
-            socket.color = "red";
+        if (turnCount == 0) {
+            let userdata = {
+                'color': socket.color
+            };
+            socket.handshake.session.userdata = userdata;
+            socket.handshake.session.save();
+
+            players.push(socket);
+            socket.emit("wait");
+        } else if (socket.handshake.session.userdata) {
+            socket.color = socket.handshake.session.userdata.color;
+            players.push(socket);
+            socket.emit("setColor", socket.color);
+            socket.emit("board", parseBoardToLedMatrix());
         }
-        players.push(socket);
-        players[0].emit("stopWait");
-    } else {
-        socket.emit("setColor", "white");
-        socket.emit("message", "Sorry, there are already 2 other players");
+    } else if (players.length == 1) {
+        if (turnCount == 0) {
+            if (players[0].color == "red") {
+                socket.emit("setColor", "green");
+                socket.color = "green";
+            } else {
+                socket.emit("setColor", "red");
+                socket.color = "red";
+            }
+            let userdata = {
+                'color': socket.color
+            };
+            socket.handshake.session.userdata = userdata;
+            socket.handshake.session.save();
+            players.push(socket);
+            players[0].emit("stopWait");
+        } else if (socket.handshake.session.userdata) {
+            socket.color = socket.handshake.session.userdata.color;
+            players.push(socket);
+            socket.emit("setColor", socket.color);
+            socket.emit("board", parseBoardToLedMatrix());
+        }
+    } else if (!socket.handshake.session.userdata) {
+        {
+            socket.emit("setColor", "white");
+            socket.emit("message", "Sorry, there are already 2 other players");
+        }
     }
 
 
@@ -72,7 +123,7 @@ io.sockets.on('connection', socket => {
         }
         if (players.length == 0) {
             resetBoard();
-            execFileSync("./ledMatrix.py", [parseBoardToLedMatrix()]);
+            //execFileSync("./ledMatrix.py", [parseBoardToLedMatrix()]);
         }
     });
 
@@ -83,7 +134,7 @@ io.sockets.on('connection', socket => {
             players.forEach(player => {
                 player.emit('playOk', move);
             });
-            execFileSync("./ledMatrix.py", [parseBoardToLedMatrix()]);
+            //execFileSync("./ledMatrix.py", [parseBoardToLedMatrix()]);
             turnCount++;
             if (turnCount > 2) {
                 //check x
@@ -133,10 +184,13 @@ io.sockets.on('connection', socket => {
                 }
 
                 if (winner != "white") {
+                    channel.send(`${move.color} won`);
+                    resetBoard();
                     players.forEach(player => {
                         player.emit('message', `${move.color} won`);
+                        player.emit("board", parseBoardToLedMatrix());
                     });
-                    resetBoard();
+                    //execFileSync("./ledMatrix.py", [parseBoardToLedMatrix()]);
                 }
             }
         }
@@ -162,6 +216,7 @@ function parseBoardToLedMatrix() {
 }
 
 function resetBoard() {
+    channel.send('A new game has been started');
     turnCount = 0;
     winner = "white";
     for (var i = 0; i < board.length; i++) {
