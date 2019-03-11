@@ -1,0 +1,28 @@
+{
+  "name": "raspberrytictactoe",
+  "version": "1.0.0",
+  "description": "- Projet de conception OS - Serveur nodeJS sur raspberry pi - Deux clients se connectent au serveurJS pour pouvoir y jouer au morpion - La partie est affiché sur une matrice de led bicolore connectée au raspberry",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SergiyGolov/raspberryTicTacToe.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SergiyGolov/raspberryTicTacToe/issues"
+  },
+  "homepage": "https://github.com/SergiyGolov/raspberryTicTacToe#readme",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "express-socket.io-session": "^1.3.5",
+    "socket.io": "^2.2.0"
+  }
+}
