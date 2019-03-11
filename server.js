@@ -22,11 +22,12 @@ const token = process.env.DISCORD_BOT_SECRET;
 
 var channel;
 
+console.log(`ngrok adress: http://${ngrokAdress}`);
 
 client.on('ready', () => {
     console.log("Bot ready");
     channel = client.channels.find(x => x.name ==='général');
-    channel.send(`Adress of the server: ${ngrokAdress}`);
+    channel.send(`Adress of the server: http://${ngrokAdress}`);
 });
 
 client.on('message', msg => {

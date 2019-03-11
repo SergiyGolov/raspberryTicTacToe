@@ -1,5 +1,5 @@
 #!/bin/bash
 
-ngrok -log=stdout http 8080 > /dev/null &
+ngrok http 8080 -log=stdout > /dev/null &
 sleep 1
 node server.js
