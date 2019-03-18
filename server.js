@@ -2,9 +2,10 @@ const {
     execFileSync
 } = require('child_process');
 
-require('dotenv').config();
+require('dotenv').config({path: __dirname + '/.env'})
 
-var ngrokAdress = execFileSync("./getNgrokAdress.sh").toString().replace(/\s/g, '');
+var project_root=process.env.PROJECT_ROOT;
+var ngrokAdress = execFileSync(`${project_root}/getNgrokAdress.sh`).toString().replace(/\s/g, '');
 
 var app = require('express')(),
     server = require("http").createServer(app),
@@ -26,14 +27,14 @@ console.log(`ngrok adress: http://${ngrokAdress}`);
 
 client.on('ready', () => {
     console.log("Bot ready");
-    channel = client.channels.find(x => x.name ==='général');
+    channel = client.channels.find(x => x.name ==='bot');
     channel.send(`Adress of the server: http://${ngrokAdress}`);
 });
 
 client.on('message', msg => {
     if (msg.author.id != client.user.id ) {
         if(msg == "/link")
-            msg.channel.send(ngrokAdress);
+            msg.channel.send(`http://${ngrokAdress}`);
     }
 });
 
@@ -42,7 +43,7 @@ client.login(token);
 app.use(session);
 
 app.get('/', function (req, res) {
-    res.render('game.ejs', {
+    res.render(`${project_root}/views/game.ejs`, {
         serverAdress: ngrokAdress
     });
 });
@@ -124,7 +125,7 @@ io.on('connection', socket => {
         }
         if (players.length == 0) {
             resetBoard();
-            //execFileSync("./ledMatrix.py", [parseBoardToLedMatrix()]);
+            execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
         }
     });
 
@@ -135,7 +136,7 @@ io.on('connection', socket => {
             players.forEach(player => {
                 player.emit('playOk', move);
             });
-            //execFileSync("./ledMatrix.py", [parseBoardToLedMatrix()]);
+            execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
             turnCount++;
             if (turnCount > 2) {
                 //check x
@@ -191,7 +192,7 @@ io.on('connection', socket => {
                         player.emit('message', `${move.color} won`);
                         player.emit("board", parseBoardToLedMatrix());
                     });
-                    //execFileSync("./ledMatrix.py", [parseBoardToLedMatrix()]);
+                    execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
                 }
             }
         }
