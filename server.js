@@ -2,9 +2,11 @@ const {
     execFileSync
 } = require('child_process');
 
-require('dotenv').config({path: __dirname + '/.env'})
+require('dotenv').config({
+    path: __dirname + '/.env'
+})
 
-var project_root=process.env.PROJECT_ROOT;
+var project_root = process.env.PROJECT_ROOT;
 var ngrokAdress = execFileSync(`${project_root}/getNgrokAdress.sh`).toString().replace(/\s/g, '');
 
 var app = require('express')(),
@@ -27,13 +29,13 @@ console.log(`ngrok adress: http://${ngrokAdress}`);
 
 client.on('ready', () => {
     console.log("Bot ready");
-    channel = client.channels.find(x => x.name ==='bot');
+    channel = client.channels.find(x => x.name === 'bot');
     channel.send(`Adress of the server: http://${ngrokAdress}`);
 });
 
 client.on('message', msg => {
-    if (msg.author.id != client.user.id ) {
-        if(msg == "/link")
+    if (msg.author.id != client.user.id) {
+        if (msg == "/link")
             msg.channel.send(`http://${ngrokAdress}`);
     }
 });
@@ -190,6 +192,14 @@ io.on('connection', socket => {
                     resetBoard();
                     players.forEach(player => {
                         player.emit('message', `${move.color} won`);
+                        player.emit("board", parseBoardToLedMatrix());
+                    });
+                    execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
+                } else if (winner == "white" && turnCount == 9) {
+                    channel.send("stalemate !");
+                    resetBoard();
+                    players.forEach(player => {
+                        player.emit('message', "stalemate !");
                         player.emit("board", parseBoardToLedMatrix());
                     });
                     execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
