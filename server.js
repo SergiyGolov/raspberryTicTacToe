@@ -4,7 +4,7 @@ const {
 
 require('dotenv').config({
     path: __dirname + '/.env'
-})
+});
 
 var project_root = process.env.PROJECT_ROOT;
 var ngrokAdress = execFileSync(`${project_root}/getNgrokAdress.sh`).toString().replace(/\s/g, '');
@@ -37,6 +37,21 @@ client.on('message', msg => {
     if (msg.author.id != client.user.id) {
         if (msg == "/link")
             msg.channel.send(`http://${ngrokAdress}`);
+        else if(msg=="/reset"){
+            resetBoard();
+            execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
+            var sockets = io.sockets.sockets;
+            for(var socketId in sockets)
+            {
+                var socket = sockets[socketId];
+                socket.emit("board", parseBoardToLedMatrix());
+                socket.emit("message", "The server state has been reset, press f5 on client side");
+                socket.disconnect();
+            }
+            players.splice(0,players.length);
+            redTurn=true;
+            msg.channel.send("The server state has been reset, press f5 on client side");
+        }
     }
 });
 
@@ -66,6 +81,8 @@ for (var i = 0; i < board.length; i++) {
         board[i][j] = "white";
     }
 }
+
+execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
 
 io.use(sharedsession(session));
 
@@ -146,8 +163,12 @@ io.on('connection', socket => {
                     if (board[i][move.y] != move.color)
                         break;
 
-                    if (i == 2)
+                    if (i == 2) {
                         winner = move.color;
+                        for (let j = 0; j < 3; j++)
+                            board[j][move.y] = move.color.toUpperCase();
+                    }
+
                 }
 
                 if (winner == "white") {
@@ -156,8 +177,11 @@ io.on('connection', socket => {
                         if (board[move.x][i] != move.color)
                             break;
 
-                        if (i == 2)
+                        if (i == 2) {
                             winner = move.color;
+                            for (let j = 0; j < 3; j++)
+                                board[move.x][j] = move.color.toUpperCase();
+                        }
                     }
                 }
 
@@ -168,8 +192,11 @@ io.on('connection', socket => {
                             if (board[i][i] != move.color)
                                 break;
 
-                            if (i == 2)
+                            if (i == 2) {
                                 winner = move.color;
+                                for (let j = 0; j < 3; j++)
+                                    board[j][j] = move.color.toUpperCase();
+                            }
                         }
                     }
                 }
@@ -181,28 +208,28 @@ io.on('connection', socket => {
                             if (board[i][2 - i] != move.color)
                                 break;
 
-                            if (i == 2)
+                            if (i == 2) {
                                 winner = move.color;
+                                for (let j = 0; j < 3; j++)
+                                    board[j][2 - j] = move.color.toUpperCase();
+                            }
                         }
                     }
                 }
 
                 if (winner != "white") {
                     channel.send(`${move.color} won`);
-                    resetBoard();
                     players.forEach(player => {
                         player.emit('message', `${move.color} won`);
-                        player.emit("board", parseBoardToLedMatrix());
                     });
-                    execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
-                } else if (winner == "white" && turnCount == 9) {
+                    showWinnerOnLedMatrix(false);
+
+                } else if (turnCount == 9 && winner == "white") {
                     channel.send("stalemate !");
-                    resetBoard();
                     players.forEach(player => {
                         player.emit('message', "stalemate !");
-                        player.emit("board", parseBoardToLedMatrix());
                     });
-                    execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
+                    showWinnerOnLedMatrix(true);
                 }
             }
         }
@@ -220,6 +247,10 @@ function parseBoardToLedMatrix() {
                 matrixString += "r";
             else if (board[i][j] == "green")
                 matrixString += "g";
+            else if (board[i][j] == String("red").toUpperCase())
+                matrixString += "R";
+            else if (board[i][j] == String("green").toUpperCase())
+                matrixString += "G";
             else
                 matrixString += "0";
         }
@@ -228,7 +259,6 @@ function parseBoardToLedMatrix() {
 }
 
 function resetBoard() {
-    channel.send('A new game has been started');
     turnCount = 0;
     winner = "white";
     for (var i = 0; i < board.length; i++) {
@@ -236,4 +266,35 @@ function resetBoard() {
             board[i][j] = "white";
         }
     }
+}
+
+function showWinnerOnLedMatrix(stalemate) {
+    var counter = 13;
+    let parsedBoard = parseBoardToLedMatrix();
+    if (stalemate)
+        parsedBoard = parsedBoard.replace(/r/g, 'R').replace(/g/g, 'G');
+    var winAnimation = setInterval(function () {
+        counter--;
+        if (counter === 0) {
+            clearInterval(winAnimation);
+            resetBoard();
+            players.forEach(player => {
+                player.emit("board", parseBoardToLedMatrix());
+            });
+            execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
+            channel.send('A new game has been started');
+        } else if (counter % 2 == 0) {
+            let blinkBoard = parsedBoard.replace(/R/g, '0').replace(/G/g, '0');
+            execFileSync(`${project_root}/ledMatrix.py`, [blinkBoard]);
+            players.forEach(player => {
+                player.emit("board", blinkBoard);
+            });
+        } else {
+            let blinkBoard = parsedBoard.replace(/R/g, 'r').replace(/G/g, 'g');
+            execFileSync(`${project_root}/ledMatrix.py`, [blinkBoard]);
+            players.forEach(player => {
+                player.emit("board", blinkBoard);
+            });
+        }
+    }, 250);
 }
