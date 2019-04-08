@@ -2,22 +2,39 @@
 <html>
 
 <head>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <meta charset="utf-8" />
     <title>Tic tac toe</title>
     <style>
         td {
-            border: 6px solid rgb(255, 140, 0);
+            border: 10px solid rgb(255, 165, 0);
             z-index: 2;
             background-color: white;
         }
 
         table {
-            background-color: rgb(255, 140, 0);
-            z-index: 1;
+            border-spacing: 5px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        table tr:first-child td {
+            border-top: 0;
+        }
+
+        table tr td:first-child {
+            border-left: 0;
+        }
+
+        table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        table tr td:last-child {
+            border-right: 0;
         }
     </style>
 </head>
@@ -45,8 +62,8 @@
 
             var board = new Array(3);
 
-	    var greenColor="#ADFF2F";
-	    var redColor="#FF4500";		
+            var greenColor = "#ADFF2F";
+            var redColor = "#DC143C";
 
 
             for (var i = 0; i < board.length; i++) {
@@ -64,11 +81,11 @@
             });
 
             socket.on('playOk', move => {
-		if(move.color==="red")
-			let color=redColor;
-		else
-			let color=greenColor;
-                board[move.x][move.y].style.backgroundColor = color;
+                if (move.color == "red")
+                    board[move.x][move.y].style.backgroundColor = redColor;
+                else
+                    board[move.x][move.y].style.backgroundColor = greenColor;
+
                 if ((move.color == "red" && color == "green") || (move.color == "green" && color == "red")) {
                     toastr.info("It's your turn !");
                 }
@@ -98,6 +115,11 @@
                 if (color == "red") {
                     toastr.info("It's your turn !");
                 }
+
+                if (color == "red")
+                    document.getElementById('board').style.backgroundColor = redColor;
+                else if (color == "green")
+                    document.getElementById('board').style.backgroundColor = greenColor;
 
                 if (color != "white" && !init) {
                     init = true;

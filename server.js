@@ -24,6 +24,7 @@ const client = new Discord.Client();
 const token = process.env.DISCORD_BOT_SECRET;
 
 var channel;
+var waitWin = false;
 
 console.log(`ngrok adress: http://${ngrokAdress}`);
 
@@ -37,19 +38,18 @@ client.on('message', msg => {
     if (msg.author.id != client.user.id) {
         if (msg == "/link")
             msg.channel.send(`http://${ngrokAdress}`);
-        else if(msg=="/reset"){
+        else if (msg == "/reset") {
             resetBoard();
             execFileSync(`${project_root}/ledMatrix.py`, [parseBoardToLedMatrix()]);
             var sockets = io.sockets.sockets;
-            for(var socketId in sockets)
-            {
+            for (var socketId in sockets) {
                 var socket = sockets[socketId];
                 socket.emit("board", parseBoardToLedMatrix());
                 socket.emit("message", "The server state has been reset, press f5 on client side");
                 socket.disconnect();
             }
-            players.splice(0,players.length);
-            redTurn=true;
+            players.splice(0, players.length);
+            redTurn = true;
             msg.channel.send("The server state has been reset, press f5 on client side");
         }
     }
@@ -149,7 +149,7 @@ io.on('connection', socket => {
     });
 
     socket.on('play', (move) => {
-        if (board[move.x][move.y] == "white" && players.length == 2 && (move.color == "red" && redTurn || move.color == "green" && !redTurn)) {
+        if (!waitWin && board[move.x][move.y] == "white" && players.length == 2 && (move.color == "red" && redTurn || move.color == "green" && !redTurn)) {
             redTurn = !redTurn;
             board[move.x][move.y] = move.color;
             players.forEach(player => {
@@ -232,6 +232,11 @@ io.on('connection', socket => {
                     showWinnerOnLedMatrix(true);
                 }
             }
+        } else if (move.color == "red" && !redTurn || move.color == "green" && redTurn) {
+            players.forEach(player => {
+                if (player.color == move.color)
+                    player.emit('message', "It's not your turn !");
+            });
         }
     });
 
@@ -270,12 +275,14 @@ function resetBoard() {
 
 function showWinnerOnLedMatrix(stalemate) {
     var counter = 13;
+    waitWin = true;
     let parsedBoard = parseBoardToLedMatrix();
     if (stalemate)
         parsedBoard = parsedBoard.replace(/r/g, 'R').replace(/g/g, 'G');
     var winAnimation = setInterval(function () {
         counter--;
         if (counter === 0) {
+            waitWin = false;
             clearInterval(winAnimation);
             resetBoard();
             players.forEach(player => {
