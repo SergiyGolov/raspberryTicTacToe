@@ -10,13 +10,13 @@
     <title>Tic tac toe</title>
     <style>
         td {
-            border: 6px solid rgb(255, 255, 0);
+            border: 6px solid rgb(255, 140, 0);
             z-index: 2;
             background-color: white;
         }
 
         table {
-            background-color: rgb(255, 255, 0);
+            background-color: rgb(255, 140, 0);
             z-index: 1;
         }
     </style>
@@ -45,6 +45,10 @@
 
             var board = new Array(3);
 
+	    var greenColor="#ADFF2F";
+	    var redColor="#FF4500";		
+
+
             for (var i = 0; i < board.length; i++) {
                 board[i] = new Array(3);
             }
@@ -60,7 +64,11 @@
             });
 
             socket.on('playOk', move => {
-                board[move.x][move.y].style.backgroundColor = move.color;
+		if(move.color==="red")
+			let color=redColor;
+		else
+			let color=greenColor;
+                board[move.x][move.y].style.backgroundColor = color;
                 if ((move.color == "red" && color == "green") || (move.color == "green" && color == "red")) {
                     toastr.info("It's your turn !");
                 }
@@ -75,9 +83,9 @@
                         y = 0;
                     }
                     if (el == "r") {
-                        board[x][y].style.backgroundColor = "red";
+                        board[x][y].style.backgroundColor = redColor;
                     } else if (el == "g") {
-                        board[x][y].style.backgroundColor = "green";
+                        board[x][y].style.backgroundColor = greenColor;
                     } else {
                         board[x][y].style.backgroundColor = "white";
                     }
