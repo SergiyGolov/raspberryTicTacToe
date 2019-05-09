@@ -11,8 +11,8 @@
 
 # prérequis logiciels
 - npm, node, python3.6, ngrok, pip
-- lien expliquant comment installer ngrok: [https://ngrok.com/download](https://ngrok.com/download) (à faire à la main, python et pip sont installés avec `install.sh`)
-- lien expliquant comment installer npm et node sur une raspberry: [https://www.instructables.com/id/Install-Nodejs-and-Npm-on-Raspberry-Pi/](https://www.instructables.com/id/Install-Nodejs-and-Npm-on-Raspberry-Pi/) (à faire à la main, python et pip sont installés avec `install.sh`)
+- lien expliquant comment installer ngrok: [https://ngrok.com/download](https://ngrok.com/download) (à faire à la main, python, pip et les prérequis pour le driver de la matrice de led sont installés avec `install.sh`)
+- lien expliquant comment installer npm et node sur une raspberry: [https://www.instructables.com/id/Install-Nodejs-and-Npm-on-Raspberry-Pi/](https://www.instructables.com/id/Install-Nodejs-and-Npm-on-Raspberry-Pi/) (à faire à la main, python, pip et les prérequis pour le driver de la matrice de led sont installés avec `install.sh`)
 
 # installation
 - `sudo pip install Adafruit-GPIO spidev Adafruit-PureIO`
