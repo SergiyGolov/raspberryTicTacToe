@@ -99,7 +99,6 @@ io.on('connection', socket => {
             socket.handshake.session.save();
 
             players.push(socket);
-            socket.emit("wait");
         } else if (socket.handshake.session.userdata) {
             socket.color = socket.handshake.session.userdata.color;
             players.push(socket);
@@ -121,7 +120,6 @@ io.on('connection', socket => {
             socket.handshake.session.userdata = userdata;
             socket.handshake.session.save();
             players.push(socket);
-            players[0].emit("stopWait");
         } else if (socket.handshake.session.userdata) {
             socket.color = socket.handshake.session.userdata.color;
             players.push(socket);
