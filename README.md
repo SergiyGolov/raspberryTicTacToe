@@ -6,11 +6,13 @@
 
 # prérequis matériels
 - raspberry pi connectée à internet
-- matrice de LED Adafruit 8x8 bicolore avec backpack i²c : https://learn.adafruit.com/adafruit-led-backpack/bi-color-8x8-matrix
+- matrice de LED Adafruit 8x8 bicolore avec backpack i²c :  [https://learn.adafruit.com/adafruit-led-backpack/bi-color-8x8-matrix](https://learn.adafruit.com/adafruit-led-backpack/bi-color-8x8-matrix)
 - connecter les pins 5V, GND, SDA, SCL du backpack de la matrice vers la raspberry pi (voir poster présentant le projet)
 
 # prérequis logiciels
 - npm, node, python3.6, ngrok, pip
+- lien expliquant comment installer ngrok: [https://ngrok.com/download](https://ngrok.com/download) (à faire à la main, python et pip sont installés avec `install.sh`)
+- lien expliquant comment installer npm et node sur une raspberry: [https://www.instructables.com/id/Install-Nodejs-and-Npm-on-Raspberry-Pi/](https://www.instructables.com/id/Install-Nodejs-and-Npm-on-Raspberry-Pi/) (à faire à la main, python et pip sont installés avec `install.sh`)
 
 # installation
 - `sudo pip install Adafruit-GPIO spidev Adafruit-PureIO`
@@ -22,6 +24,7 @@
     - express-session
     - express-socket.io-session
     - socket.io
+- les étapes d'installation précédentes sont automatisés dans le script `install.sh`, les étapes suivantes sont à faire à la main
 - modifier le fichier `/etc/rc.local` sur la raspberry pour lancer le script `start.sh` en tâche de fond qui se trouve à la racine de ce projet au démarrage de la raspberry
 - activer l'interface i²c sur la raspberry (avec `raspi-config`)
 - configurer la raspberry pour qu'elle se connecte automatiquement en mode invite de commande au démarrage dés que la connexion internet est disponible (avec `raspi-config`)
